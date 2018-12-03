@@ -1,24 +1,24 @@
 package client
 
 import (
-	"net/http"
-	"strings"
-	"net/url"
-	"io/ioutil"
-	"net/http/cookiejar"
-	"log"
-	"os"
 	"errors"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"net/http/cookiejar"
+	"net/url"
+	"os"
+	"strings"
 )
 
 type Client struct {
-	client http.Client
-	UA string
+	client  *http.Client
+	UA      string
 	lastURL string
 	logger  *log.Logger
 }
 
-func (c *Client) Get(url string) (string, error){
+func (c *Client) Get(url string) (string, error) {
 	if url == c.lastURL {
 		err := errors.New("Inf loop.")
 		return "", err
@@ -67,7 +67,7 @@ func (c *Client) Post(url string, form url.Values) (string, error) {
 	return string(body), nil
 }
 
-func (c *Client) SetIP(URLStr string, ip string) error{
+func (c *Client) SetIP(URLStr string, ip string) error {
 	u, err := url.Parse(URLStr)
 	if err != nil {
 		c.logger.Printf("url.Parse err %s", err)
@@ -75,11 +75,12 @@ func (c *Client) SetIP(URLStr string, ip string) error{
 	}
 	cookies := c.client.Jar.Cookies(u)
 	for i, cookie := range cookies {
-		if cookie.Name == "T"{
+		if cookie.Name == "T" {
 			values, _ := url.ParseQuery(cookie.Value)
 			values["RA"] = []string{ip}
 			cookie.Value = values.Encode()
 			cookies[i] = cookie
+			c.client.Jar.SetCookies(u, cookies)
 			return nil
 		}
 	}
@@ -90,10 +91,9 @@ func MakeClient() Client {
 	cookieJar, _ := cookiejar.New(nil)
 	return Client{
 		UA: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
-		client: http.Client{
+		client: &http.Client{
 			Jar: cookieJar,
 		},
 		logger: log.New(os.Stdout, "[HTTP Client]", log.LstdFlags),
 	}
 }
-

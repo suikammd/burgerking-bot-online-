@@ -1,9 +1,9 @@
 package client
 
 import (
-	"regexp"
-	"net/url"
 	"errors"
+	"net/url"
+	"regexp"
 )
 
 const (
@@ -14,20 +14,20 @@ const (
 )
 
 type Question struct {
-	ID string
-	Type int
+	ID         string
+	Type       int
 	Selections []string
 }
 
 type Form struct {
-	URL string
+	URL       string
 	Questions []Question
-	IoNF string
+	IoNF      string
 	PostedFNS string
-	ValCode string
+	ValCode   string
 }
 
-func ParseForm(content string) (f Form, err error){
+func ParseForm(content string) (f Form, err error) {
 	actionPattern := regexp.MustCompile(`action="(\w+\.aspx\?c=\d+)"`)
 	action := actionPattern.FindStringSubmatch(content)
 	if len(action) < 2 {
@@ -42,7 +42,6 @@ func ParseForm(content string) (f Form, err error){
 	if len(IoNF) >= 2 {
 		f.IoNF = IoNF[1]
 	}
-
 
 	postedFNSPattern := regexp.MustCompile(`name="PostedFNS" value="(.+?)"`)
 	PostedFNS := postedFNSPattern.FindStringSubmatch(content)
@@ -62,10 +61,10 @@ func ParseForm(content string) (f Form, err error){
 		}
 		radioQuestions[radio[1]] = append(radioQuestions[radio[1]], radio[2])
 	}
-	for k, v := range radioQuestions{
+	for k, v := range radioQuestions {
 		q := Question{
-			ID: k,
-			Type: RADIO,
+			ID:         k,
+			Type:       RADIO,
 			Selections: v,
 		}
 		f.Questions = append(f.Questions, q)
@@ -75,8 +74,8 @@ func ParseForm(content string) (f Form, err error){
 	textareas := textareaPattern.FindAllStringSubmatch(content, -1)
 	for _, textarea := range textareas {
 		q := Question{
-			ID: textarea[1],
-			Type: TEXTAREA,
+			ID:         textarea[1],
+			Type:       TEXTAREA,
 			Selections: []string{},
 		}
 		f.Questions = append(f.Questions, q)
@@ -86,8 +85,8 @@ func ParseForm(content string) (f Form, err error){
 	checkboxes := checkboxPattern.FindAllStringSubmatch(content, -1)
 	for _, checkbox := range checkboxes {
 		q := Question{
-			ID: checkbox[1],
-			Type: CHECKBOX,
+			ID:         checkbox[1],
+			Type:       CHECKBOX,
 			Selections: []string{},
 		}
 		f.Questions = append(f.Questions, q)
@@ -97,8 +96,8 @@ func ParseForm(content string) (f Form, err error){
 	selects := selectPattern.FindAllStringSubmatch(content, -1)
 	for _, select_ := range selects {
 		q := Question{
-			ID: select_[1],
-			Type: SELECT,
+			ID:         select_[1],
+			Type:       SELECT,
 			Selections: []string{},
 		}
 		f.Questions = append(f.Questions, q)
@@ -108,8 +107,8 @@ func ParseForm(content string) (f Form, err error){
 	texts := textPattern.FindAllStringSubmatch(content, -1)
 	for _, text := range texts {
 		q := Question{
-			ID: text[1],
-			Type: TEXTAREA,
+			ID:         text[1],
+			Type:       TEXTAREA,
 			Selections: []string{},
 		}
 		f.Questions = append(f.Questions, q)
@@ -123,7 +122,7 @@ func ParseForm(content string) (f Form, err error){
 	return
 }
 
-func (f *Form) FormatForm() url.Values{
+func (f *Form) FormatForm() url.Values {
 	values := make(url.Values)
 	values.Set("IoNF", f.IoNF)
 	values.Set("PostedFNS", f.PostedFNS)

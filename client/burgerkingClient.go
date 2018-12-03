@@ -1,17 +1,17 @@
 package client
 
 import (
-	"net/url"
 	"burgerking/utils"
 	"fmt"
+	"net/url"
 )
 
 type BurgerkingClient struct {
 	Client
-	resp  string
+	resp string
 }
 
-func (bc *BurgerkingClient) StartSurvey(id string) (err error){
+func (bc *BurgerkingClient) StartSurvey(id string) (err error) {
 	bc.Client = MakeClient()
 	content, err := bc.Get("https://tellburgerking.com.cn/")
 	if err != nil {
@@ -23,6 +23,7 @@ func (bc *BurgerkingClient) StartSurvey(id string) (err error){
 		fmt.Println(err)
 		return err
 	}
+	bc.SetIP(f.URL, utils.RandomIP())
 	postForm := make(url.Values)
 	postForm.Add("JavaScriptEnabled", "1")
 	postForm.Add("FIP", "True")
@@ -48,7 +49,7 @@ func (bc *BurgerkingClient) StartSurvey(id string) (err error){
 	postForm.Add("CN4", id[9:12])
 	postForm.Add("CN5", id[12:15])
 	postForm.Add("CN6", id[15:16])
-	bc.SetIP(f.URL, utils.RandomIP())
+	//bc.SetIP(f.URL, utils.RandomIP())
 	content, err = bc.Post(f.URL, postForm)
 	if err != nil {
 		fmt.Println("bc.Post err %s", err)
